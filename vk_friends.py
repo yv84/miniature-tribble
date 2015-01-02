@@ -12,24 +12,34 @@ from selenium.webdriver.support import select
 
 
 
-def login():
-    wd = webdriver.Firefox() # or add to your PATH
-    wd.set_window_size(1024, 768) # optional
-    URL = 'https://vk.com'
-    wd.get(URL)
+class Login():
+    def __init__(self):
+        self.wd = None
 
-    quick_email = wd.find_element_by_css_selector("#quick_email")
-    quick_email.send_keys(os.environ['VK_LOGIN'])
-    time.sleep(1)
+    def __enter__(self):
+        self.wd = webdriver.Firefox() # or add to your PATH
+        self.wd.set_window_size(1024, 768) # optional
+        URL = 'https://vk.com'
+        self.wd.get(URL)
 
-    quick_pass = wd.find_element_by_css_selector("#quick_pass")
-    quick_pass.send_keys(os.environ['VK_PSW'])
-    time.sleep(1)
+        quick_email = self.wd.find_element_by_css_selector("#quick_email")
+        quick_email.send_keys(os.environ['VK_LOGIN'])
+        time.sleep(1)
 
-    quick_login_button = wd.find_element_by_css_selector("#quick_login_button")
-    quick_login_button.click()
-    time.sleep(2)
-    return wd
+        quick_pass = self.wd.find_element_by_css_selector("#quick_pass")
+        quick_pass.send_keys(os.environ['VK_PSW'])
+        time.sleep(1)
+
+        quick_login_button = self.wd.find_element_by_css_selector("#quick_login_button")
+        quick_login_button.click()
+        time.sleep(2)
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.wd.close()
+        time.sleep(1)
+        self.wd.quit()
+
 
 
 def get_followers(wd):
@@ -74,12 +84,6 @@ def get_followers(wd):
             get_visible_followers(ii)
         except:
             has_followers = False
-
-
-    wd.close()
-    time.sleep(1)
-    wd.quit()
-
 
 
 
@@ -154,9 +158,10 @@ class New_Random_Friends():
 
 
 if __name__ == "__main__":
-    wd = login()
-    new_random_frineds = New_Random_Friends(wd)
-    new_random_frineds.get_new_friends()
+    with Login() as login:
+        get_followers(login.wd)
+        # new_random_friends = New_Random_Friends(login.wd)
+        # new_random_friends.get_new_friends()
 
 
 
