@@ -44,22 +44,24 @@ class Login():
 
 def get_followers(wd):
     REQUEST_CONTROLS = re.compile("request_controls_")
-    my_freinds = wd.find_element_by_css_selector("#l_fr > a:nth-child(1) > span:nth-child(2)")
-    my_freinds.click()
-    time.sleep(2)
 
-    followers_page = wd.find_element_by_css_selector("#tab_requests > a:nth-child(1) > b:nth-child(3)")
-    followers_page.click()
-    time.sleep(2)
+    def run(self):
+        my_freinds = wd.find_element_by_css_selector("#l_fr > a:nth-child(1) > span:nth-child(2)")
+        my_freinds.click()
+        time.sleep(2)
 
-    wd.execute_script("window.scrollTo(0, document.body.scrollHeight)")
-    # wd.execute_script("window.scrollTo(0, 2000)")
+        followers_page = wd.find_element_by_css_selector("#tab_requests > a:nth-child(1) > b:nth-child(3)")
+        followers_page.click()
+        time.sleep(2)
 
-    # no_of_pagedowns = 20
-    # while no_of_pagedowns:
-    #     elem.send_keys(Keys.PAGE_DOWN)
-    #     time.sleep(0.2)
-    #     no_of_pagedowns-=1
+        wd.execute_script("window.scrollTo(0, document.body.scrollHeight)")
+        # wd.execute_script("window.scrollTo(0, 2000)")
+
+        # no_of_pagedowns = 20
+        # while no_of_pagedowns:
+        #     elem.send_keys(Keys.PAGE_DOWN)
+        #     time.sleep(0.2)
+        #     no_of_pagedowns-=1
 
     def get_visible_followers(page):
         followers = wd.find_element_by_css_selector('#list_content > div:nth-child('+str(page)+')')
@@ -88,59 +90,93 @@ def get_followers(wd):
 
 
 class New_Random_Friends():
+
     def __init__(self, wd):
         self.wd = wd
-        self.FILTER_CONTAINER = "div > div:nth-child(2) > div:nth-child(1) > ul:nth-child(1)"
+
+    @staticmethod
+    def get_list_from_input_field(element):
+        FILTER_CONTAINER = "div > div:nth-child(2) > div:nth-child(1) > ul:nth-child(1)"
+        return element.find_element_by_css_selector(FILTER_CONTAINER).\
+            find_elements_by_css_selector("* > li")
+
+    def random_input_filed(self, ids):
+        element = self.wd.find_element_by_css_selector(ids)
+        element.click()
+        time.sleep(3)
+        items = self.get_list_from_input_field(element)
+        time.sleep(3)
+        item = random.choice(items)
+        item.click()
+        time.sleep(3)
+        return
+
+    def random_data_input_filed(self, ids, year_min, year_max):
+        element = self.wd.find_element_by_css_selector(ids)
+        element.click()
+        time.sleep(3)
+        items = self.get_list_from_input_field(element)
+        time.sleep(3)
+        desired_item = str(random.choice(range(year_min, year_max)))
+        for item in items:
+            if item.text == desired_item:
+                item.click()
+                time.sleep(3)
+                return
+    
+    def named_input_filed(self, ids, desired_item):
+        element = self.wd.find_element_by_css_selector(ids)
+        element.click()
+        time.sleep(3)
+        items = self.get_list_from_input_field(element)
+        time.sleep(3)
+        for item in items:
+            if item.text == desired_item:
+                item.click()
+                time.sleep(3)
+                return
 
 
     def select_region(self, desired_country):
-        region_sel = self.wd.find_element_by_css_selector("#cCountry")
-        region_sel.click()
-        time.sleep(1)
-        countries = region_sel.find_element_by_css_selector(self.FILTER_CONTAINER).find_elements_by_css_selector("* > li")
-        for country in countries:
-            if country.text == desired_country:
-                country.click() 
-                return
+        self.named_input_filed("#cCountry", desired_country)
 
 
     def select_city(self, desired_town):
-        city_sel = self.wd.find_element_by_css_selector("#cCity")
-        city_sel.click()
-        time.sleep(1)
-        towns = city_sel.find_element_by_css_selector(self.FILTER_CONTAINER).find_elements_by_css_selector("* > li")
-        for town in towns:
-            if town.text == desired_town:
-                town.click() 
-                return
+        self.named_input_filed("#cCity", desired_town)
 
 
     def select_random_school(self):
-        school_sel = self.wd.find_element_by_css_selector("#cSchool")
-        school_sel.click()
-        time.sleep(1)
-        schools = school_sel.find_element_by_css_selector(self.FILTER_CONTAINER).find_elements_by_css_selector("* > li")
-        school = random.choice(schools)
-        school.click()
-        #cSchClass
-        #cSchYear
+        try:
+            self.random_input_filed("#cSchool")
+        except:
+            pass
+        try:
+            self.random_input_filed("#cSchClass")
+        except:
+            pass
+        try:
+            self.random_input_filed("#cSchYear")
+        except:
+            pass
         return
 
 
 
     def select_random_university(self):
-        university_sel = self.wd.find_element_by_css_selector("#cUniversity")
-        university_sel.click()
-        time.sleep(1)
-        universities = university_sel.find_element_by_css_selector(self.FILTER_CONTAINER).find_elements_by_css_selector("* > li")
-        university = random.choice(universities)
-        university.click()
-        #cUniversity
-        #cFaculty
-        #cChair
-        #cUniYear
-        #cEduForm
-        #cEduStatus
+        try:
+            self.random_input_filed("#cUniversity")
+        except:
+            pass
+        try:
+            self.random_input_filed("#cFaculty")
+        except:
+            pass
+        try:
+            self.random_data_input_filed("#cUniYear", 1995, 2012)
+        except:
+            pass
+        # self.random_input_filed("#cEduForm")
+        # self.random_input_filed("#cEduStatus")
         return  
 
 
