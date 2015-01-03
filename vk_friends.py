@@ -111,7 +111,7 @@ class New_Random_Friends():
         time.sleep(3)
         return
 
-    def random_data_input_filed(self, ids, year_min, year_max):
+    def random_data_input_filed(self, ids, year_min, year_max, prefix=None):
         element = self.wd.find_element_by_css_selector(ids)
         element.click()
         time.sleep(3)
@@ -119,11 +119,11 @@ class New_Random_Friends():
         time.sleep(3)
         desired_item = str(random.choice(range(year_min, year_max)))
         for item in items:
-            if item.text == desired_item:
+            if item.text == prefix+desired_item:
                 item.click()
                 time.sleep(3)
-                return
-    
+                return desired_item
+
     def named_input_filed(self, ids, desired_item):
         element = self.wd.find_element_by_css_selector(ids)
         element.click()
@@ -135,6 +135,23 @@ class New_Random_Friends():
                 item.click()
                 time.sleep(3)
                 return
+
+    def text_input_filed(self, ids, text):
+        element = self.wd.find_element_by_css_selector(ids)
+        element.click()
+        time.sleep(3)
+        input_text_field = element.find_element_by_tag_name("input")
+        input_text_field.clear()
+        input_text_field.send_keys(text)
+        time.sleep(3)
+        items = self.get_list_from_input_field(element)
+        time.sleep(2)
+        item = random.choice(items)
+        try:
+            item.click()
+        except:
+            pass
+        time.sleep(2)
 
 
     def select_region(self, desired_country):
@@ -161,8 +178,18 @@ class New_Random_Friends():
         return
 
 
+    def select_age(self, year_min=18, year_max=40):
+        # desired_item_regex_min = re.compile("from\s\d+")
+        # desired_item_regex_min = re.compile("to\s\d+")
+        # match = lambda x: desired_item_regex.match(x)
+        age_filter_min = "#cAge > div:nth-child(1)"
+        age_filter_max = "#cAge > div:nth-child(3)"
+        min = self.random_data_input_filed(age_filter_min, year_min, year_max, prefix="from ")
+        self.random_data_input_filed(age_filter_max, min, year_max, "to ")
+        return
 
-    def select_random_university(self):
+
+    def select_random_university(self, year_min=1995, year_max=2012):
         try:
             self.random_input_filed("#cUniversity")
         except:
@@ -172,7 +199,7 @@ class New_Random_Friends():
         except:
             pass
         try:
-            self.random_data_input_filed("#cUniYear", 1995, 2012)
+            self.random_data_input_filed("#cUniYear", year_min, year_max)
         except:
             pass
         # self.random_input_filed("#cEduForm")
@@ -185,10 +212,12 @@ class New_Random_Friends():
         top_search.click()
         time.sleep(2)
 
+        select_age(18, 40)
         select_region("Russia") # russia
         select_city("Moscow")
         select_random_school()
         select_random_university()
+
 
 
 
