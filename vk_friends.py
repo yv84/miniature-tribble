@@ -30,7 +30,8 @@ class Login():
         quick_pass.send_keys(os.environ['VK_PSW'])
         time.sleep(1)
 
-        quick_login_button = self.wd.find_element_by_css_selector("#quick_login_button")
+        quick_login_button = self.wd.find_element_by_css_selector(
+            "#quick_login_button")
         quick_login_button.click()
         time.sleep(2)
         return self
@@ -46,11 +47,13 @@ def get_followers(wd):
     REQUEST_CONTROLS = re.compile("request_controls_")
 
     def run(self):
-        my_freinds = wd.find_element_by_css_selector("#l_fr > a:nth-child(1) > span:nth-child(2)")
+        my_freinds = wd.find_element_by_css_selector(
+            "#l_fr > a:nth-child(1) > span:nth-child(2)")
         my_freinds.click()
         time.sleep(2)
 
-        followers_page = wd.find_element_by_css_selector("#tab_requests > a:nth-child(1) > b:nth-child(3)")
+        followers_page = wd.find_element_by_css_selector(
+            "#tab_requests > a:nth-child(1) > b:nth-child(3)")
         followers_page.click()
         time.sleep(2)
 
@@ -64,10 +67,13 @@ def get_followers(wd):
         #     no_of_pagedowns-=1
 
     def get_visible_followers(page):
-        followers = wd.find_element_by_css_selector('#list_content > div:nth-child('+str(page)+')')
-        followers_ = followers.find_elements_by_css_selector("div.info_no_actions")
+        followers = wd.find_element_by_css_selector(
+            '#list_content > div:nth-child('+str(page)+')')
+        followers_ = followers.find_elements_by_css_selector(
+            "div.info_no_actions")
         for follower in followers_:
-            name = follower.find_element_by_css_selector("div:nth-child(1)").text
+            name = follower.find_element_by_css_selector(
+                "div:nth-child(1)").text
             if len(follower.find_elements_by_css_selector("div")) == 6:
                 id = follower.find_element_by_css_selector("div:nth-child(5)").\
                     find_element_by_css_selector("div").get_attribute('id') #require scroll
@@ -96,7 +102,8 @@ class New_Random_Friends():
 
     @staticmethod
     def get_list_from_input_field(element):
-        FILTER_CONTAINER = "div > div:nth-child(2) > div:nth-child(1) > ul:nth-child(1)"
+        FILTER_CONTAINER = "div > div:nth-child(2) >" +\
+            " div:nth-child(1) > ul:nth-child(1)"
         return element.find_element_by_css_selector(FILTER_CONTAINER).\
             find_elements_by_css_selector("* > li")
 
@@ -117,7 +124,7 @@ class New_Random_Friends():
         time.sleep(3)
         items = self.get_list_from_input_field(element)
         time.sleep(3)
-        desired_item = str(random.choice(range(year_min, year_max)))
+        desired_item = str(random.choice(range(year_min, year_max+1)))
         for item in items:
             if item.text == prefix+desired_item:
                 item.click()
@@ -153,6 +160,14 @@ class New_Random_Friends():
             pass
         time.sleep(2)
 
+    def random_radiobtns(self, ids):
+        element = self.wd.find_element_by_css_selector(ids)
+        n = str(random.choice(range(1,
+            len(element.find_elements_by_css_selector("div.radiobtn"))+1)
+        ))
+        element.find_element_by_css_selector(
+            "div.radiobtn:nth-child(" + n + ")") \
+            .click()
 
     def select_region(self, desired_country):
         self.named_input_filed("#cCountry", desired_country)
@@ -179,14 +194,19 @@ class New_Random_Friends():
 
 
     def select_age(self, year_min=18, year_max=40):
-        # desired_item_regex_min = re.compile("from\s\d+")
-        # desired_item_regex_min = re.compile("to\s\d+")
-        # match = lambda x: desired_item_regex.match(x)
         age_filter_min = "#cAge > div:nth-child(1)"
         age_filter_max = "#cAge > div:nth-child(3)"
-        min = self.random_data_input_filed(age_filter_min, year_min, year_max, prefix="from ")
+        # 2 times
+        min = int(self.random_data_input_filed(age_filter_min,
+            year_min, year_max, prefix="from "))
+        min = int(self.random_data_input_filed(age_filter_min,
+            year_min, year_max, prefix="from "))
+        self.random_data_input_filed(age_filter_max, min, year_max, "to ")
         self.random_data_input_filed(age_filter_max, min, year_max, "to ")
         return
+
+    def select_sex(self):
+        self.random_radiobtns("#cSex")
 
 
     def select_random_university(self, year_min=1995, year_max=2012):
@@ -212,11 +232,12 @@ class New_Random_Friends():
         top_search.click()
         time.sleep(2)
 
-        select_age(18, 40)
-        select_region("Russia") # russia
-        select_city("Moscow")
-        select_random_school()
-        select_random_university()
+        self.select_sex()
+        self.select_age(18, 40)
+        self.select_region("Russia")
+        self.select_city("Moscow")
+        self.select_random_school()
+        self.select_random_university()
 
 
 
@@ -225,8 +246,8 @@ class New_Random_Friends():
 if __name__ == "__main__":
     with Login() as login:
         get_followers(login.wd)
-        # new_random_friends = New_Random_Friends(login.wd)
-        # new_random_friends.get_new_friends()
+        new_random_friends = New_Random_Friends(login.wd)
+        new_random_friends.get_new_friends()
 
 
 
