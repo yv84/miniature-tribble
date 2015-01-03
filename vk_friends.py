@@ -95,10 +95,11 @@ def get_followers(wd):
 
 
 
-class New_Random_Friends():
+class NewRandomFriends():
 
     def __init__(self, wd):
         self.wd = wd
+        self.INVITE_BUTTON = re.compile("search_sub")
 
     @staticmethod
     def get_list_from_input_field(element):
@@ -226,6 +227,21 @@ class New_Random_Friends():
         # self.random_input_filed("#cEduStatus")
         return  
 
+    def invite_random_people_in_search_list(self):
+        ppls_ids = self.wd.find_elements_by_css_selector(
+            "#results > div > div:nth-child(2) > button:first-of-type")
+        if not ppls_ids:
+            return
+        ppls_names = self.wd.find_elements_by_css_selector(
+            "#results > div > div:nth-child(2) > div.name")
+        ppls = list(zip(ppls_ids, ppls_names))
+        ppl = random.choice(ppls)
+        print("Invite -> ",
+            self.INVITE_BUTTON.sub('id', ppl[0].get_attribute('id')),
+            ' / ', ppl[1].text)
+        ppl[0].click() # Invite
+        return int(self.INVITE_BUTTON.sub('', ppl[0].get_attribute('id')))
+
 
     def get_new_friends(self):
         top_search = self.wd.find_element_by_css_selector("#top_search")
@@ -238,6 +254,7 @@ class New_Random_Friends():
         self.select_city("Moscow")
         self.select_random_school()
         self.select_random_university()
+        self.invite_random_people_in_search_list()
 
 
 
@@ -246,7 +263,7 @@ class New_Random_Friends():
 if __name__ == "__main__":
     with Login() as login:
         get_followers(login.wd)
-        new_random_friends = New_Random_Friends(login.wd)
+        new_random_friends = NewRandomFriends(login.wd)
         new_random_friends.get_new_friends()
 
 
